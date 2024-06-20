@@ -1,41 +1,26 @@
-import { useEffect, useRef } from 'react'
+import { useRef, useContext } from 'react'
 import styled from 'styled-components'
+import { TaskInterface } from '@/utils/interfaces/index.ts'
+import { TaskDragContext } from '@/utils/contexts/task-drag-context.tsx'
 import IconPriorityHigh from './IconPriorityHigh.tsx'
 import IconPriorityLow from './IconPriorityLow.tsx'
 
-interface Task {
-  id: string,
-  name: string
-  description: string,
-  status: string,
-  priority: string
-}
-
 interface Modal {
-  task: Task,
-  onClick: (task: Task) => void
+  task: TaskInterface,
+  onClick: (task: TaskInterface) => void
 }
 
-export default function Task ({ task = { id: '', status: '', description: '', name: '', priority: '' }, onClick }: Modal) {
+export default function Task ({ task, onClick }: Modal) {
+  const { updateCurrentTask, updateTaskList } = useContext(TaskDragContext)
   const taskRef = useRef<HTMLDivElement | null>(null)
 
-  const dragFunc = (e: Event) => {
-    console.log(e)
+  const dragStart = (task: TaskInterface) => {
+    updateCurrentTask(task)
   }
 
-  useEffect(() => {
-    if (taskRef?.current) {
-      taskRef.current.addEventListener('dragstart', dragFunc, true)
-      taskRef.current.addEventListener('dragenter', dragFunc, true)
-    }
-
-    return () => {
-      if (taskRef?.current) {
-        taskRef.current.removeEventListener('dragstart', dragFunc, true)
-        taskRef.current.removeEventListener('dragenter', dragFunc, true)
-      }
-    }
-  })
+  const onDragEnd = () => {
+    updateTaskList()
+  }
 
   const getTaskPriority = () => {
     switch (task.priority) {
@@ -53,7 +38,12 @@ export default function Task ({ task = { id: '', status: '', description: '', na
   }
 
   return (
-    <TaskComponent draggable="true" ref={taskRef} onClick={onClickHandler}>
+    <TaskComponent
+      draggable="true"
+      onDragStart={() => {dragStart(task)}}
+      onDragEnd={onDragEnd}
+      ref={taskRef}
+      onClick={onClickHandler}>
       <TaskId>
         <a>TASK-{task.id.slice(-3)}</a>
       </TaskId>
@@ -83,7 +73,8 @@ export const TaskComponent = styled.div`
   box-shadow: 0 0 1px rgba(26, 32, 36, 0.32), 0 1px 2px rgba(91, 104, 113, 0.32);
   border-radius: 6px;
   cursor: move;
-  
+  transition: opacity 0.2s ease;
+
   & + & {
     margin-top: 8px;
   }

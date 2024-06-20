@@ -37,9 +37,9 @@ export default function PageKanban () {
     updateTasks()
   }, [])
 
-  const getTaskLists = TASK_STATUSES.map(taskList =>
-    <TaskList title={taskList.name} value={taskList.value} key={taskList.value}>
-      {getTasksByStatus(taskList.value).map((task, i) =>
+  const getTaskLists = TASK_STATUSES.map(taskListItem =>
+    <TaskList taskListItem={taskListItem} key={taskListItem.value}>
+      {getTasksByStatus(taskListItem.value).map((task, i) =>
         <Task onClick={currentTaskClickHandler} task={task} key={i}/>)}
     </TaskList>)
 

@@ -49,7 +49,7 @@ export const ButtonComponent = styled.div<{
     line-height: 24px;
     color: #FFFFFF;
     border-radius: 6px;
-    font-weight: 500;
+    font-weight: 600;
     transition: background-color 0.2s ease;
   }
   

@@ -1,30 +1,62 @@
+import { ReactNode, DragEvent, Children, useContext, useState } from 'react'
 import styled from 'styled-components'
-import { ReactNode, Children } from 'react'
+import { TaskListItemInterface } from '@/utils/interfaces'
+import { TaskDragContext } from '@/utils/contexts/task-drag-context.tsx'
 
-type TaskListType = {
+interface TaskListType {
   children?: ReactNode
-  title?: string,
-  value?: string
+  taskListItem: TaskListItemInterface
 }
 
-export default function TaskList ({ title, children }: TaskListType) {
+export default function TaskList ({ taskListItem, children }: TaskListType) {
+  const { updateCurrentTaskList } = useContext(TaskDragContext)
+  const [isCurrentDropEl, setIsCurrentDropEl] = useState(false)
+
+  const onDragOver = (e: DragEvent<HTMLDivElement>, taskListItem: TaskListItemInterface) => {
+    e.preventDefault()
+    updateCurrentTaskList(taskListItem)
+    setIsCurrentDropEl(true)
+  }
+
+  const onDragLeave = () => {
+    updateCurrentTaskList(null)
+    setIsCurrentDropEl(false)
+  }
+
+  const onDrop = () => {
+    setIsCurrentDropEl(false)
+  }
+
   return (
-    <TaskListComponent className="task-list-component">
+    <TaskListComponent
+      $currentDrop={isCurrentDropEl}
+      className="task-list-component"
+      onDragOver={(e: DragEvent<HTMLDivElement>) => onDragOver(e, taskListItem)}
+      onDrop={onDrop}
+      onDragLeave={() => onDragLeave()}
+    >
+
       <TaskTitle>
-        <span>{title}</span>
+        <span>{taskListItem.name}</span>
       </TaskTitle>
+
       {!!Children.count(children) && <TaskListing>{children}</TaskListing>}
       {!Children.count(children) && <NothingFound>Empty</NothingFound>}
     </TaskListComponent>
   )
 }
 
-export const TaskListComponent = styled.div`
+export const TaskListComponent = styled.div<{$currentDrop: boolean}>`
   min-width: 300px;
   max-width: 300px;
   padding: 12px 8px;
   border-radius: 6px;
-  background-color: #F6F8F9;
+  background-color: ${props => props.$currentDrop ? '#DDF6EB' : '#F6F8F9'};
+  transition: background-color 0.2s ease;
+
+  &.drag-ready {
+    background-color: red;
+  }
 `
 
 const TaskTitle = styled.div`

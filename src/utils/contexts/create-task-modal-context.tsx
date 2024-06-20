@@ -11,7 +11,7 @@ export const CreateTaskModalContext = createContext({
 })
 
 export default function CreateTaskModalContextProvider ({children}: Provider) {
-  const [showCreateTaskModal, setShowCreateTaskModal] = useState(false)
+  const [showCreateTaskModal, setShowCreateTaskModal] = useState<boolean>(false)
 
   const closeModal = () => {
     setShowCreateTaskModal(false)
